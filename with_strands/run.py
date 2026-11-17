@@ -3,7 +3,7 @@
     uv run python -m with_strands.run orchestrator
     uv run python -m with_strands.run agent --yes
 
-Both need GATEWAY_URL and COURSE_MCP_TOKEN: the model is the course LLM gateway.
+Both use your course token (KB_MCP_TOKEN in .env, see the README) and the course LLM gateway.
 """
 from __future__ import annotations
 

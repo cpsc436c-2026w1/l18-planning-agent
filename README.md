@@ -13,6 +13,25 @@ model, or with your course token through the course LLM gateway. To reuse code i
 Replace `--model gateway` with `--model stub` to run without a token and without network. For triage, `--replay`
 prints a saved live run.
 
+## Grocery demo: where to read each request
+
+The lecture builds two requests, each in three versions. The two requests share the same four tools
+(`grocery/tools.py`), model client (`grocery/model.py`) and stores (`grocery/store.py`).
+
+| Request (pattern) | Plain Python | With an agent SDK (Strands) | On an agent runtime (AgentCore) |
+|---|---|---|---|
+| "Plan dinners for a week under $60, no palm oil." (orchestrator-workers) | `plain/orchestrator.py`: planner call, one worker call per dish, merge call; app code caps the plan and checks the total | `with_strands/orchestrator.py`: the same steps as Strands agents | [`agentcore/runtime/main.py`](agentcore/runtime/main.py), call `plan`; tools in [`agentcore/lambda/handler.py`](agentcore/lambda/handler.py) |
+| "Which is cheaper, spaghetti or penne? Add the cheaper one to my list." (bounded agent) | `plain/agent.py`: the agent loop, with caps checked before every call and approval before the write | `with_strands/agent.py`, with the caps and the approval as hooks in `with_strands/hooks.py` | [`agentcore/runtime/main.py`](agentcore/runtime/main.py), calls `add` then `approve` in the same session; see [`agentcore/README.md`](agentcore/README.md) |
+
+Run the four laptop versions after the setup below (each uses the course LLM gateway with your token):
+
+1. `uv run python -m plain.orchestrator --model gateway`
+2. `uv run python -m plain.agent --model gateway`
+3. `uv run python -m with_strands.run orchestrator`
+4. `uv run python -m with_strands.run agent --yes`
+
+The AgentCore version needs AWS resources this repository does not create; [`agentcore/README.md`](agentcore/README.md) says what each file does and how to build the AWS side.
+
 ## Set up
 
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/), a Python package manager.
@@ -31,7 +50,7 @@ prints a saved live run.
 |---|---|---|
 | Stores | DuckDB for the product table, the shopping lists and the price lake | DynamoDB, Athena over S3, the Glue Data Catalog, in an AWS account set up with `storeplan/aws.py` |
 | Model calls | the course LLM gateway with your token, or the stub | the same gateway |
-| Hosting | your terminal | the lecture showed the same agents on Amazon Bedrock AgentCore Runtime; that deployment is not in this repository |
+| Hosting | your terminal | the same agents on Amazon Bedrock AgentCore Runtime: the code is in `agentcore/` ([`agentcore/README.md`](agentcore/README.md)) |
 
 `storeplan/aws.py` creates the AWS side in an account you control, if your project has one: an S3 prefix, a Glue
 database with the two lake tables and their descriptions, an Athena workgroup with a 10 MB limit per query.

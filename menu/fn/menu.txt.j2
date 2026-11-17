@@ -1,0 +1,11 @@
+Dinners for the week
+You asked: {{ request }}
+
+{% for p in picks -%}
+{{ loop.index }}. {{ p.dish }}: {% if p.code %}{{ p.name }}, {{ p.price_usd | usd }} USD{% else %}no product found{% endif %}
+{% endfor %}
+Total {{ total_usd | usd }} USD of a budget of {{ budget_usd | usd }} USD.
+{% if over_budget %}Over the budget by {{ (-left_usd) | usd }} USD.{% else %}Within the budget: {{ left_usd | usd }} USD left.{% endif %}
+
+{{ price_note }}
+Request {{ request_id }}. One product per dish, for shopper {{ shopper }}.

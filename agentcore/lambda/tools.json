@@ -1,0 +1,52 @@
+[
+  {
+    "name": "search_products",
+    "description": "Search the grocery catalogue by one or two plain English words (pasta, tomato sauce, tuna). Returns at most 5 products, cheapest first, with code, name and price_usd.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "query": {"type": "string", "description": "one or two words for the product"},
+        "filters": {
+          "type": "object",
+          "description": "optional filters",
+          "properties": {
+            "no_palm_oil": {"type": "boolean", "description": "true: only products whose ingredients hold no palm oil"},
+            "max_price_usd": {"type": "number", "description": "only products at or under this price"}
+          }
+        }
+      },
+      "required": ["query"]
+    }
+  },
+  {
+    "name": "get_product",
+    "description": "One product by its code: name, brand, quantity, price_usd, palm_oil, ingredients.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {"code": {"type": "string", "description": "the product's code"}},
+      "required": ["code"]
+    }
+  },
+  {
+    "name": "get_list",
+    "description": "The shopper's shopping list with its total in USD.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {"shopper": {"type": "string", "description": "the shopper"}},
+      "required": ["shopper"]
+    }
+  },
+  {
+    "name": "add_to_list",
+    "description": "Add one product to the shopper's shopping list. The shopper is asked to approve first.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "shopper": {"type": "string", "description": "the shopper"},
+        "code": {"type": "string", "description": "the product's code"},
+        "request_id": {"type": "string", "description": "set by the app, one per approved write; leave it empty"}
+      },
+      "required": ["shopper", "code"]
+    }
+  }
+]
