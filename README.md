@@ -2,8 +2,6 @@
 
 This repository holds the demos from L18. Each one runs on your laptop. You can run it with no key at all, using a stub
 model, or with your course token through the course LLM gateway. To reuse code in your project, start with the files under "What to borrow" below and keep their app-code checks.
-The file [`llms.txt`](llms.txt) describes the repository for a coding assistant: paste its URL
-(https://raw.githubusercontent.com/cpsc436c-2026w1/l18-planning-agent/main/llms.txt) into the assistant's chat.
 
 | Demo | What you give it | What it prints | Command (from the repository root) |
 |---|---|---|---|
