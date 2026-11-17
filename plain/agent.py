@@ -8,7 +8,7 @@ outside the model, where a prompt cannot remove them (L17, "Pattern: bounded age
     (Agentic AI Lens AGENTREL06-BP04)
 
 Run:  uv run python -m plain.agent --model stub
-      uv run python -m plain.agent --model gateway      (needs GATEWAY_URL and COURSE_MCP_TOKEN)
+      uv run python -m plain.agent --model gateway      (needs your course token, KB_MCP_TOKEN in .env)
 """
 from __future__ import annotations
 

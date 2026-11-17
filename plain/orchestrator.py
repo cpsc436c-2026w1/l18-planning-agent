@@ -8,7 +8,7 @@ The model decides what the parts are; app code runs and checks every part (L17, 
   5. merge call      the week's list, in words                          (WORKER_MODEL)
 
 Run:  uv run python -m plain.orchestrator --model stub
-      uv run python -m plain.orchestrator --model gateway      (needs GATEWAY_URL and COURSE_MCP_TOKEN)
+      uv run python -m plain.orchestrator --model gateway      (needs your course token, KB_MCP_TOKEN in .env)
 """
 from __future__ import annotations
 
