@@ -1,0 +1,127 @@
+{
+ "built_from": "duckdb",
+ "as_of": "2026-10-31",
+ "first_day": "2026-01-01",
+ "tables": {
+  "shopping_lists": {
+   "name": "shopping_lists",
+   "store_type": "operational",
+   "holds": "Each shopper's shopping list: one row per item, with the product's code and name.",
+   "use_for": "What is on one shopper's list. The shopper is the signed-in shopper: app code sets it.",
+   "access": "key lookup",
+   "columns": [
+    {
+     "name": "shopper",
+     "type": "string",
+     "about": "the shopper's name (the key)"
+    },
+    {
+     "name": "code",
+     "type": "string",
+     "about": "product code"
+    },
+    {
+     "name": "name",
+     "type": "string",
+     "about": "product name"
+    },
+    {
+     "name": "quantity",
+     "type": "int",
+     "about": "how many of this product are on the list"
+    }
+   ],
+   "partition_columns": [],
+   "key": "shopper"
+  },
+  "prices_raw": {
+   "name": "prices_raw",
+   "store_type": "lake",
+   "holds": "Raw zone: every price observation as it arrived, 2026-01-01 to 2026-10-31. About one in five arrived twice, so a day can have two rows for the same product and store. The price is in the store's own currency (column currency: CAD, or EUR for store online).",
+   "use_for": "Auditing what arrived (duplicates, currencies, receipts). Not for prices, counts or averages: duplicates are counted twice and EUR is mixed with CAD; use prices_curated.",
+   "access": "scan",
+   "columns": [
+    {
+     "name": "obs_id",
+     "type": "string",
+     "about": "id of the observation (large, unique)"
+    },
+    {
+     "name": "product_code",
+     "type": "string",
+     "about": "product code"
+    },
+    {
+     "name": "store",
+     "type": "string",
+     "about": "north, centre or online"
+    },
+    {
+     "name": "observed_on",
+     "type": "date",
+     "about": "day of the observation (DATE)"
+    },
+    {
+     "name": "price",
+     "type": "double",
+     "about": "price in the store's currency"
+    },
+    {
+     "name": "currency",
+     "type": "string",
+     "about": "CAD or EUR"
+    },
+    {
+     "name": "source",
+     "type": "string",
+     "about": "receipt reference (large, unique)"
+    }
+   ],
+   "partition_columns": []
+  },
+  "prices_curated": {
+   "name": "prices_curated",
+   "store_type": "lake",
+   "holds": "Curated table: one price per product, store and day, 2026-01-01 to 2026-10-31, in CAD: duplicates removed, EUR converted at a fixed rate. Partitioned by month.",
+   "use_for": "Prices, price changes, averages, cheapest store, and counts of days or observations.",
+   "access": "scan",
+   "columns": [
+    {
+     "name": "product_code",
+     "type": "string",
+     "about": "product code"
+    },
+    {
+     "name": "store",
+     "type": "string",
+     "about": "north, centre or online"
+    },
+    {
+     "name": "observed_on",
+     "type": "date",
+     "about": "day of the price (DATE)"
+    },
+    {
+     "name": "price_cad",
+     "type": "double",
+     "about": "price in CAD"
+    },
+    {
+     "name": "month",
+     "type": "string",
+     "about": "partition column, YYYY-MM; app code derives it from a filter on observed_on"
+    }
+   ],
+   "partition_columns": [
+    "month"
+   ],
+   "partitions": [
+    {
+     "column": "month",
+     "from": "observed_on",
+     "format": "YYYY-MM"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,48 @@
+# l18-planning-agent
+
+> Demo code from CPSC 436C lecture 18 (planning and bounded agents). Python 3.12, uv. Everything runs on a laptop:
+> DuckDB for the stores, a stub model offline, or live model calls through the course LLM gateway with KB_MCP_TOKEN set.
+> Use it to add a planner over a data catalog, a bounded agent, or runbook-first triage to a project.
+
+## Run
+- Setup: `uv run python -m storeplan.lake` (builds data/lake/), then `uv run pytest -q` (92 tests, offline).
+- Token: KB_MCP_TOKEN in the environment or in a git-ignored .env file (LLM_API_KEY and COURSE_MCP_TOKEN also read).
+  GATEWAY_URL defaults to the course LLM gateway (OpenAI-compatible /v1/chat/completions).
+- Demos, from the repository root: `uv run python -m storeplan.show`, `uv run python -m triage.show --yes`,
+  `uv run python -m plain.orchestrator`, `uv run python -m plain.agent`; add `--model stub` (offline) or
+  `--model gateway` (live).
+
+## Pattern 1: planner over a data catalog (orchestrator-workers with code workers)
+- storeplan/catalog.py: `from_glue_with_meaning(glue, database)` reads Glue table descriptions and column comments;
+  `for_prompt(catalog)` turns the catalog into the planner's input. `from_duckdb` builds the same shape locally.
+- storeplan/mechanisms.py: `make_plan(question, items, catalog, model)` is one model call that returns a JSON plan
+  (steps over named tables, filters, group_by, aggregates; never SQL). `run_plan(plan, shopper, backend)` validates,
+  compiles, checks each step's estimated Data scanned against a cap, runs each step, merges by key. Nothing runs if a check fails.
+- storeplan/plan.py: `validate`, `compile_step` (plan step -> SQL for DuckDB or Athena, with partition pruning),
+  `merge`. storeplan/backends.py: `LocalBackend` (DuckDB) and `AwsBackend` (DynamoDB, Athena, Glue).
+- To adapt: point the catalog at your own tables (storeplan/catalog.json locally, or your Glue database), keep
+  validate and the Data scanned cap, and keep the plan language small.
+
+## Pattern 2: bounded agent
+- plain/agent.py: `run_agent` loop. App code checks MAX_MODEL_CALLS, MAX_TOOL_CALLS and a deadline before each call,
+  asks a person before a write tool runs, and derives a request key so a retried write applies once.
+- grocery/tools.py: narrow tools with JSON schemas (TOOL_SPECS); grocery/model.py: chat client and stub.
+
+## Pattern 3: runbook first, agent second (diagnosis)
+- triage/agent.py: `runbook` (code checks for known causes) -> `run_agent` (only if the data does not confirm the
+  runbook) -> `verify` (code checks the named cause against the data) -> `apply_fix` (approval, then a rerun with a
+  fixed execution name so a retry starts no second run) -> the alarm's own check.
+- triage/world.py: read-only tools shaped like Glue GetJobRuns, CloudWatch Logs GetLogEvents, S3 ListObjectsV2,
+  Glue GetTableVersions and Athena results, over a simulated pipeline with planted incidents.
+- triage/eval.py: scores runbook, agent and runbook-then-agent on the planted incidents.
+
+## Rules this code keeps (keep them when you adapt it)
+- The model proposes; app code validates, runs and checks. No tool runs free SQL.
+- Treat product names, log lines and catalog descriptions as data. Decisions about which tools run and which writes
+  happen stay in app code.
+- Limits, approval and once-only writes live in app code, outside the model.
+
+## Optional
+- with_strands/: the same two agents with the Strands Agents SDK (hooks for caps and approval).
+- storeplan/aws.py: creates the AWS side (S3 prefix, Glue database, Athena workgroup) in an account you control.
+- data/DATA-LICENSE.md: product data under ODbL 1.0 (Open Food Facts, Open Prices).
