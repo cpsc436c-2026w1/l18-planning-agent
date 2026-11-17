@@ -4,6 +4,10 @@
 > DuckDB for the stores, a stub model offline, or live model calls through the course LLM gateway with KB_MCP_TOKEN set.
 > Use it to add a planner over a data catalog, a bounded agent, or runbook-first triage to a project.
 
+Repository: https://github.com/cpsc436c-2026w1/l18-planning-agent
+Clone: `git clone https://github.com/cpsc436c-2026w1/l18-planning-agent.git && cd l18-planning-agent`
+README: https://raw.githubusercontent.com/cpsc436c-2026w1/l18-planning-agent/main/README.md
+
 ## Run
 - Setup: `uv run python -m storeplan.lake` (builds data/lake/), then `uv run pytest -q` (92 tests, offline).
 - Token: KB_MCP_TOKEN in the environment or in a git-ignored .env file (LLM_API_KEY and COURSE_MCP_TOKEN also read).
