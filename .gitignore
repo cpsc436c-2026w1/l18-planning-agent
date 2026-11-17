@@ -5,3 +5,4 @@ __pycache__/
 data/lake/
 output/*
 !output/triage-eval-gateway-v3.json
+!output/agent-gateway.json
