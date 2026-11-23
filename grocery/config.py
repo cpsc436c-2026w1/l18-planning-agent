@@ -38,7 +38,7 @@ def _load_dotenv() -> None:
 
 
 _load_dotenv()
-DEFAULT_GATEWAY_URL = "https://oay6tcpsuv4gn5mubtlj7rnbl40gmrlv.lambda-url.ca-central-1.on.aws/v1"
+DEFAULT_GATEWAY_URL = "https://co4zo6ssflbun6deagtswqresm0vrmyt.lambda-url.ca-central-1.on.aws/v1"
 GATEWAY_URL = (os.environ.get("GATEWAY_URL", "").strip() or DEFAULT_GATEWAY_URL).rstrip("/")
 REGION = os.environ.get("AWS_REGION", "ca-central-1")
 PREFIX = os.environ.get("GROCERY_PREFIX", "l18-grocery")
